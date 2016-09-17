@@ -18,5 +18,5 @@ subjectAltName		= __DNSNAMES__
 
 [ req_cert_extensions ]
 nsCertType              = server
-subjectAltName          = email:__EMAIL__
+subjectAltName		= __DNSNAMES__
 
