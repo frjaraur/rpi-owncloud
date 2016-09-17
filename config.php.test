@@ -1,0 +1,29 @@
+<?php
+$CONFIG = array (
+  'datadirectory' => '/var/lib/owncloud/data',
+  'apps_path' => 
+  array (
+    0 => 
+    array (
+      'path' => '/usr/share/webapps/owncloud/apps',
+      'url' => '/apps',
+      'writable' => false,
+    ),
+  ),
+  'version' => '8.1.8.2',
+  'dbname' => 'owncloud',
+  'dbhost' => 'localhost',
+  'dbuser' => 'owncloud',
+  'installed' => true,
+  'loglevel' => '0',
+  'instanceid' => 'ocnoy2bt30gw',
+  'passwordsalt' => 'satOdxM3bYVJXG3vVRHsc+TxUUPIRV',
+  'secret' => '52MLAW1MqVglM5/wyJVS+qt33Olo8/WTgwReDwWoNLb02Epz',
+  'dbtype' => 'sqlite3',
+  'logtimezone' => 'UTC',
+  'trusted_domains' => 
+  array (
+    0 => '192.168.1.8:8080',
+  ),
+  'overwrite.cli.url' => 'http://192.168.1.8:8080',
+);

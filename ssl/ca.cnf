@@ -1,0 +1,21 @@
+# This configuration file is used by the 'req' command when the root certificates is created.
+[ req ]
+default_bits            = 2048                  # default strength of client certificates
+default_md              = sha2
+encrypt_key             = yes                   # "no" is equivalent to -nodes
+prompt                  = no
+string_mask             = utf8only
+distinguished_name      = __CANAME__     # root certificate name
+req_extensions          = req_cert_extensions
+
+[ __CANAME__ ]
+# root certificate name
+countryName             = __COUNTRY__
+localityName            = __LOCATION__
+organizationName        = __ORGANIZATION__
+commonName              = __CANAME__
+
+[ req_cert_extensions ]
+subjectAltName          = email:hostmaster@example.org
+
+
