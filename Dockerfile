@@ -23,9 +23,9 @@ ENV OWNCLOUDCFGFILE /etc/owncloud/config.php
 #	&& ln -sf /dev/stderr /var/log/lighttpd/error.log
 EXPOSE 80 443
 
-COPY ssl/ ${SSLDATA}
-
 VOLUME ${OWNCLOUDDATA} ${SSLDATA}
+
+COPY ssl/ ${SSLDATA}
 
 COPY entrypoint.sh /entrypoint.sh
 
