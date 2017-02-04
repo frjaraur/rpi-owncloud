@@ -1,9 +1,7 @@
-FROM hypriot/rpi-alpine-scratch
+FROM frjaraur/rpi-alpine
 
-RUN apk update && \
-apk upgrade && \
-apk add lighttpd php-cgi php-curl \
-owncloud-sqlite owncloud-texteditor owncloud-documents owncloud-videoviewer && \ 
+RUN apk add --update lighttpd php5-cgi php5-curl \
+owncloud-sqlite owncloud-texteditor owncloud-documents owncloud-videoplayer && \ 
 rm -rf /var/cache/apk/*
 
 COPY lighttpd.conf.simple /etc/lighttpd/lighttpd.conf
