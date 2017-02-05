@@ -1,8 +1,14 @@
-#!/bin/sh
+#!/bin/sh -x
 
 ACTION=$1
 
-[ ! -n "${OWNCLOUDDATA}" ] && OWNCLOUDDATA=/var/lib/owncloud/data
+OWNCLOUDDATA=${OWNCLOUDDATA:=/var/lib/owncloud/data}
+
+OWNCLOUDCFGFILE=${OWNCLOUDCFGFILE:=/etc/owncloud/config.php}
+
+echo "${OWNCLOUDCFGFILE} to /etc/owncloud/config.php"
+
+[ -f ${OWNCLOUDCFGFILE} ] && cp ${OWNCLOUDCFGFILE} /etc/owncloud/config.php 2>/dev/null
 
 echo "OWNCLOUD DATA [${OWNCLOUDDATA}]"
 
@@ -10,12 +16,18 @@ echo "OWCLOUD CONFIG FILE [${OWNCLOUDCFGFILE}]"
 
 [ ! -d ${OWNCLOUDDATA} ] && mkdir -p ${OWNCLOUDDATA}
 
-
+[ -f ${OWNCLOUDDATA}/already_configured ] && CONFIGURED=1
 
 
 #Ensure config.php ownership
 
-chown root:www-data ${OWNCLOUDCFGFILE}
+chown root:www-data /etc/owncloud/config.php
+chmod 770 /etc/owncloud/config.php
+
+Usage(){
+	echo "First run setup and then create service using same volumes."
+	exit
+}
 
 Check_Installed(){
 	
@@ -104,7 +116,7 @@ CreateServerCert(){
   sed -i "s/__COUNTRY__/${COUNTRY}/g" ${SSLDATA}/server.cnf
   sed -i "s/__LOCATION__/${CITY}/g" ${SSLDATA}/server.cnf
   sed -i "s/__ORGANIZATION__/${ORGANIZATION}/g" ${SSLDATA}/server.cnf
-  sed -i "s/__DNSNAMES__/${DNSNAMES}/g" ${SSLDATA}/server.cnf
+  #sed -i "s/__DNSNAMES__/${DNSNAMES}/g" ${SSLDATA}/server.cnf
 
   if [ -n "${ALTERNAME_NAMES}" ]
   then
@@ -179,20 +191,45 @@ Create_ConfigFile(){
 
 }
 
+FirstSetup(){
+
+       [ ! -f /etc/lighttpd/certs/ca.crt ] && CreateCA
+       [ ! -f /etc/lighttpd/certs/lighttpd.pem ] && CreateServerCert
+       EnableSSL
+       ConfigureDataDir
+
+
+}
+
+StartLighttpd(){
+#	mkfifo -m 600 /tmp/logpipe
+#	cat <> /tmp/logpipe 1>&2 &
+#	chown www-data /tmp/logpipe
+	/usr/sbin/lighttpd -D -f /etc/lighttpd/lighttpd.conf 2>&1
+
+}
+
 case ${ACTION} in
 	setup)
 		
 		echo "SETUP "
+		FirstSetup
+		touch ${OWNCLOUDDATA}/already_configured 
+		StartLighttpd
 
 	;;
 
 	start)
 		echo "START"
-		[ ! -f /etc/lighttpd/certs/ca.crt ] && CreateCA
-		[ ! -f /etc/lighttpd/certs/lighttpd.pem ] && CreateServerCert
-		EnableSSL	
-		ConfigureDataDir
-		lighttpd -D -f /etc/lighttpd/lighttpd.conf
+		[ ${CONFIGURED} -eq 0 ] && FirstSetup
+		[ -f /etc/owncloud/config.php ] \
+		&& echo "Reconfiguration of /etc/owncloud/config.php" \
+		&& php /reconfigure.php
+		mv /etc/owncloud/config.php.tmp /etc/owncloud/config.php
+		chown root:www-data /etc/owncloud/config.php
+		chmod 750 /etc/owncloud/config.php
+		StartLighttpd
+
 
 
 	;;
@@ -202,6 +239,7 @@ case ${ACTION} in
 	;;
 
 	help)
+		Usage
 
 	;;
 

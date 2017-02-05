@@ -1,19 +1,20 @@
 <?php
-	$OWNCLOUDCFGFILE=getenv('OWNCLOUDCFGFILE');
+	$OWNCLOUDCFGFILE='/etc/owncloud/config.php';
 	include "$OWNCLOUDCFGFILE";
 
-	#print_r($CONFIG);
-	#print_r($CONFIG[trusted_domains]);
-	#print "$CONFIG[overwrite.cli.url]";
+	$writefile=$OWNCLOUDCFGFILE."tmp";
 
-	$variables=array_keys($CONFIG);
+	if ($CONFIG['trusted_domains']){ unset($CONFIG['trusted_domains']);	 }
 
-	#print_r($variables);
+	$r_config=var_export($CONFIG,true);
+	
+	$fp=fopen($writefile,'w');
 
-	foreach ($CONFIG as $a=>$b){
-		#print "\n$a -- $b ";
-		if ($a == "overwrite.cli.url"){
-			print "\nBINGO!!!";
-		}
-	}
+	fwrite($fp,"<?php\n");
+	fwrite($fp,"\n\$CONFIG=");
+	fwrite($fp,$r_config);
+	fwrite($fp,"\n?>");
+	fclose($fp);
+
+
 ?>
